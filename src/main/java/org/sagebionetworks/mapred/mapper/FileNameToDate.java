@@ -11,23 +11,21 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class FileNameToDate
 	extends Mapper<LongWritable, Text, Text, Text> {
 
-	public static Pattern s3Pattern = Pattern.compile("s3://[.\\w]+/(\\w+/\\w)/[-\\w]/([-\\w.]+)");
-	public static Pattern filePattern = Pattern.compile("[-\\w]+\\.(\\d{4}-\\d{2}-\\d{2})-\\d{2}-\\d{2}\\.gz");
+	public static Pattern s3Pattern = Pattern.compile("s3://[.\\w]+/(\\w+/\\w)/[-\\w]+/([-\\w]+)\\.([-\\d]+)\\.gz");
 
 	public void map(LongWritable key, Text value, Context context)
 		throws IOException, InterruptedException {
 		String line = value.toString();
 
 		Matcher s3Matcher = s3Pattern.matcher(line);
-		s3Matcher.find();
-
-		Matcher fileMatcher = filePattern.matcher(s3Matcher.group(2));
-		fileMatcher.find();
+		assert s3Matcher.find();
 
 		StringBuilder keyBuilder = new StringBuilder();
 		keyBuilder.append(s3Matcher.group(1));
 		keyBuilder.append("-");
-		keyBuilder.append(fileMatcher.group());
+		keyBuilder.append(s3Matcher.group(2));
+		keyBuilder.append("-");
+		keyBuilder.append(s3Matcher.group(3));
 
 		context.write(new Text(keyBuilder.toString()), new Text(s3Matcher.group()));
 	}

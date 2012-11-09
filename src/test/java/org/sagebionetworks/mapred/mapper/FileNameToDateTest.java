@@ -21,9 +21,7 @@ public class FileNameToDateTest {
 		String line;
 		while ((line = reader.readLine()) != null) {
 			Matcher s3Matcher = FileNameToDate.s3Pattern.matcher(line);
-			assertTrue(s3Matcher.find());
-			Matcher fileMatcher = FileNameToDate.filePattern.matcher(s3Matcher.group(2));
-			assertTrue(fileMatcher.find());
+			assertTrue("Could not find an s3 match: " + line, s3Matcher.find());
 		}
 
 	}
